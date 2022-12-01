@@ -53,7 +53,10 @@ class MainActivity : AppCompatActivity() {
 		viewBinding = ActivityMainBinding.inflate(layoutInflater)
 		setContentView(viewBinding.root)
 
+		// initialize launchers
 		activityResultLauncher()
+
+		// get directory where images is to save
 		outputDirectory = getOutputDirectory()
 
 		viewBinding.selectedImageRecV.layoutManager =
@@ -61,6 +64,7 @@ class MainActivity : AppCompatActivity() {
 
 		imagesList.postValue(outputDirectory.listFiles())
 
+		// observer for all images
 		imagesList.observe(this) {
 			viewBinding.selectedImageRecV.adapter = ImageAdapter(it, this)
 		}
@@ -72,6 +76,7 @@ class MainActivity : AppCompatActivity() {
 		if (allPermissionGranted()) {
 			viewBinding.uploadImageBtn.setOnClickListener {
 
+				//selector shown and image save in folder
 				if (viewBinding.uploadImageView.drawable == null) {
 					cameraAndGallerySelectorDialog(this)
 				} else {
@@ -81,7 +86,18 @@ class MainActivity : AppCompatActivity() {
 					viewBinding.uploadImageView.setImageDrawable(null)
 				}
 			}
+			viewBinding.uploadImageView.setOnClickListener {
 
+				//selector shown and image save in folder
+				if (viewBinding.uploadImageView.drawable == null) {
+					cameraAndGallerySelectorDialog(this)
+				} else {
+					saveImageToFolder(bitmap!!)
+					bitmap = null
+					imagesList.postValue(outputDirectory.listFiles())
+					viewBinding.uploadImageView.setImageDrawable(null)
+				}
+			}
 		} else {
 			ActivityCompat.requestPermissions(this, REQUIRED_PERMISSION, PERMISSION_REQ_CODE)
 		}
@@ -133,7 +149,6 @@ class MainActivity : AppCompatActivity() {
 					val bm = result.data?.extras?.get("data") as Bitmap
 					bitmap = bm
 					viewBinding.uploadImageView.setImageBitmap(bm)
-
 				}
 			}
 
@@ -170,7 +185,7 @@ class MainActivity : AppCompatActivity() {
 			bm.compress(Bitmap.CompressFormat.JPEG, 100, out)
 			out.flush()
 			out.close()
-		} catch (e: java.lang.Exception) {
+		} catch (e: Exception) {
 			e.printStackTrace()
 		}
 
