@@ -217,7 +217,7 @@ class MainActivity : AppCompatActivity() {
 			val out = FileOutputStream(image)
 			bm.compress(Bitmap.CompressFormat.JPEG, 100, out)
 			out.flush()
-			out.close()git
+			out.close()
 		} catch (e: Exception) {
 			e.printStackTrace()
 		}
