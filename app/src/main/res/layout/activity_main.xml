@@ -14,69 +14,92 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/uploadLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Upload Image"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                app:layout_constraintTop_toTopOf="@id/uploadImageView"
-                app:layout_constraintBottom_toBottomOf="@id/uploadImageView"
-                app:layout_constraintStart_toStartOf="@id/uploadImageView"
-                app:layout_constraintEnd_toEndOf="@id/uploadImageView"/>
-
-            <ImageView
-                android:id="@+id/uploadImageView"
-                android:layout_width="275dp"
-                android:layout_height="275dp"
-                android:layout_margin="20dp"
-                android:background="@drawable/upload_background"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:contentDescription="@string/app_name" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Upload Image"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/uploadImageView"
+                    app:layout_constraintEnd_toEndOf="@id/uploadImageView"
+                    app:layout_constraintStart_toStartOf="@id/uploadImageView"
+                    app:layout_constraintTop_toTopOf="@id/uploadImageView" />
+
+                <ImageView
+                    android:id="@+id/uploadImageView"
+                    android:layout_width="275dp"
+                    android:layout_height="275dp"
+                    android:layout_margin="20dp"
+                    android:background="@drawable/upload_background"
+                    android:contentDescription="@string/app_name"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/removeImageFromUpload"
+                    style="?attr/floatingActionButtonSmallStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@android:color/holo_red_light"
+                    android:src="@drawable/wrong"
+                    android:visibility="gone"
+                    app:borderWidth="0dp"
+                    app:layout_constraintEnd_toEndOf="@id/uploadImageView"
+                    app:layout_constraintTop_toTopOf="@id/uploadImageView" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:id="@+id/uploadImageBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Upload Photo"
                 android:gravity="center"
+                android:text="Upload Photo"
                 android:textColor="@color/white"
-                app:layout_constraintTop_toBottomOf="@id/uploadImageView"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintTop_toBottomOf="@id/uploadLayout" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 app:cardCornerRadius="28dp"
-                app:cardUseCompatPadding="true"
                 app:cardElevation="5dp"
-                app:cardPreventCornerOverlap="true"
                 app:cardMaxElevation="7dp"
+                app:cardPreventCornerOverlap="true"
+                app:cardUseCompatPadding="true"
 
-                app:layout_constraintTop_toBottomOf="@id/uploadImageBtn"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/uploadImageBtn">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:backgroundTint="@color/gray">
+                    android:backgroundTint="@color/gray"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/seleted"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="20dp"
                         android:layout_marginTop="20dp"
                         android:text="Selected images"
-                        android:textSize="30sp"
-                        android:layout_marginHorizontal="20dp"
-                        android:textAlignment="center"/>
+                        android:textAlignment="center"
+                        android:textSize="30sp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/selectedImageRecV"

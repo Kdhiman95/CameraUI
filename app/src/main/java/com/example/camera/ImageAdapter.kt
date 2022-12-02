@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
-class ImageAdapter(private val list: Array<File>, private val context: Context) :
+class ImageAdapter(private val list: ArrayList<File>, private val context: Context) :
 	RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
 
 	inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -27,6 +26,12 @@ class ImageAdapter(private val list: Array<File>, private val context: Context) 
 				val img = dialog.findViewById<ImageView>(R.id.image2)
 				img.setImageURI(Uri.parse(list[adapterPosition].toString()))
 				dialog.show()
+			}
+			view.setOnLongClickListener {
+				list[adapterPosition].delete()
+				list.remove(list[adapterPosition])
+				notifyItemRemoved(adapterPosition)
+				true
 			}
 		}
 	}

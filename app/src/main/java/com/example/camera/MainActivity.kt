@@ -15,7 +15,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -31,6 +31,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 	private lateinit var outputDirectory: File
 	private var imageUri: Uri? = null
 
-	private val imagesList = MutableLiveData<Array<File>>()
+	private val imagesList = MutableLiveData<ArrayList<File>>()
 
 	private var bitmap: Bitmap? = null
 
@@ -66,7 +67,10 @@ class MainActivity : AppCompatActivity() {
 		viewBinding.selectedImageRecV.layoutManager =
 			GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false)
 
-		imagesList.postValue(outputDirectory.listFiles())
+		val list = ArrayList<File>()
+		list.addAll(outputDirectory.listFiles()!!)
+
+		imagesList.postValue(list)
 
 		// observer for all images
 		imagesList.observe(this) {
@@ -79,31 +83,35 @@ class MainActivity : AppCompatActivity() {
 		super.onResume()
 		if (allPermissionGranted()) {
 			viewBinding.uploadImageBtn.setOnClickListener {
-
-				//selector shown and image save in folder
-				if (viewBinding.uploadImageView.drawable == null) {
-					cameraAndGallerySelectorDialog(this)
-				} else {
-					saveImageToFolder(bitmap!!)
-					bitmap = null
-					imagesList.postValue(outputDirectory.listFiles())
-					viewBinding.uploadImageView.setImageDrawable(null)
-				}
+				showSelectorAndSaveImage()
 			}
 			viewBinding.uploadImageView.setOnClickListener {
-
-				//selector shown and image save in folder
-				if (viewBinding.uploadImageView.drawable == null) {
-					cameraAndGallerySelectorDialog(this)
-				} else {
-					saveImageToFolder(bitmap!!)
-					bitmap = null
-					imagesList.postValue(outputDirectory.listFiles())
-					viewBinding.uploadImageView.setImageDrawable(null)
-				}
+				showSelectorAndSaveImage()
 			}
+			viewBinding.removeImageFromUpload.setOnClickListener {
+				bitmap = null
+				viewBinding.removeImageFromUpload.visibility = View.GONE
+				viewBinding.uploadImageView.setImageDrawable(null)
+			}
+
 		} else {
 			ActivityCompat.requestPermissions(this, REQUIRED_PERMISSION, PERMISSION_REQ_CODE)
+		}
+	}
+
+	//selector shown and image save in folder
+	private fun showSelectorAndSaveImage() {
+		if (viewBinding.uploadImageView.drawable == null) {
+			cameraAndGallerySelectorDialog(this)
+		} else {
+			saveImageToFolder(bitmap!!)
+			val list = ArrayList<File>()
+			list.addAll(outputDirectory.listFiles()!!)
+
+			imagesList.postValue(list)
+			bitmap = null
+			viewBinding.removeImageFromUpload.visibility = View.GONE
+			viewBinding.uploadImageView.setImageDrawable(null)
 		}
 	}
 
@@ -159,6 +167,7 @@ class MainActivity : AppCompatActivity() {
 					} else {
 						//TODO
 					}
+					viewBinding.removeImageFromUpload.visibility = View.VISIBLE
 				}
 			}
 
@@ -175,7 +184,7 @@ class MainActivity : AppCompatActivity() {
 					} else {
 						//TODO
 					}
-
+					viewBinding.removeImageFromUpload.visibility = View.VISIBLE
 				}
 			}
 	}
