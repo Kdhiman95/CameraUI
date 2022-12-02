@@ -10,10 +10,12 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -21,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.camera.databinding.ActivityMainBinding
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 	private lateinit var takePhotoLauncher: ActivityResultLauncher<Intent>
 	private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
 	private lateinit var outputDirectory: File
+	private var imageUri: Uri? = null
 
 	private val imagesList = MutableLiveData<Array<File>>()
 
@@ -54,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 		setContentView(viewBinding.root)
 
 		// initialize launchers
-		activityResultLauncher()
+		activityResultLauncher(this)
 
 		// get directory where images is to save
 		outputDirectory = getOutputDirectory()
@@ -127,6 +131,7 @@ class MainActivity : AppCompatActivity() {
 		takePhotoBtn.setOnClickListener {
 			dialog.dismiss()
 			val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+			cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, saveImageToCache(context))
 			takePhotoLauncher.launch(cameraIntent)
 		}
 
@@ -141,14 +146,19 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	//activity result launchers
-	private fun activityResultLauncher() {
+	private fun activityResultLauncher(context: Context) {
 
 		takePhotoLauncher =
 			registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
 				if (result.resultCode == Activity.RESULT_OK) {
-					val bm = result.data?.extras?.get("data") as Bitmap
-					bitmap = bm
-					viewBinding.uploadImageView.setImageBitmap(bm)
+					imageUri = saveImageToCache(context)
+					viewBinding.uploadImageView.setImageURI(imageUri)
+					if (Build.VERSION.SDK_INT > 29) {
+						val source = ImageDecoder.createSource(this.contentResolver, imageUri!!)
+						bitmap = ImageDecoder.decodeBitmap(source)
+					} else {
+						//TODO
+					}
 				}
 			}
 
@@ -170,6 +180,29 @@ class MainActivity : AppCompatActivity() {
 			}
 	}
 
+	private fun saveImageToCache(context: Context): Uri? {
+		val path = Environment.getExternalStorageDirectory().toString() + "/DCIM/image"
+		val direct = File(path)
+
+		if (!direct.exists()) {
+			direct.mkdir()
+		}
+
+		var uri: Uri? = null
+
+		try {
+
+			val image = File(direct, "data.jpg")
+			uri = FileProvider.getUriForFile(context.applicationContext,
+				"com.example.camera" + ".provider",
+				image)
+
+		} catch (e: Exception) {
+			e.printStackTrace()
+		}
+		return uri
+	}
+
 	//save image to file
 	private fun saveImageToFolder(bm: Bitmap) {
 		val image = File(outputDirectory,
@@ -184,7 +217,7 @@ class MainActivity : AppCompatActivity() {
 			val out = FileOutputStream(image)
 			bm.compress(Bitmap.CompressFormat.JPEG, 100, out)
 			out.flush()
-			out.close()
+			out.close()git
 		} catch (e: Exception) {
 			e.printStackTrace()
 		}
