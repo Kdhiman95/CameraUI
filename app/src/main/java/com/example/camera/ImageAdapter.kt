@@ -4,15 +4,14 @@ import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import java.io.File
 
-class ImageAdapter(private val list: ArrayList<File>, private val context: Context) :
+class ImageAdapter(private val list: ArrayList<Drawable>, private val context: Context) :
 	RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
 
 	inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -24,14 +23,8 @@ class ImageAdapter(private val list: ArrayList<File>, private val context: Conte
 				dialog.setContentView(R.layout.dialog_img)
 				dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 				val img = dialog.findViewById<ImageView>(R.id.image2)
-				img.setImageURI(Uri.parse(list[adapterPosition].toString()))
+				img.setImageDrawable(list[list.size-adapterPosition-1])
 				dialog.show()
-			}
-			view.setOnLongClickListener {
-				list[adapterPosition].delete()
-				list.remove(list[adapterPosition])
-				notifyItemRemoved(adapterPosition)
-				true
 			}
 		}
 	}
@@ -42,7 +35,7 @@ class ImageAdapter(private val list: ArrayList<File>, private val context: Conte
 	}
 
 	override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-		holder.image.setImageURI(Uri.parse(list[position].toString()))
+		holder.image.setImageDrawable(list[list.size-position-1])
 	}
 
 	override fun getItemCount(): Int = list.size

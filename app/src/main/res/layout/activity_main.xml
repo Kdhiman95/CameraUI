@@ -6,114 +6,334 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ScrollView
+    <TextView
+        android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Upload files"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
+        android:id="@+id/clearAllText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="20sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        android:text="Clear"
+        android:textColor="@android:color/holo_blue_dark"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/imageViewLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/contentEndLine">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Click here to upload"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:drawableTopCompat="@drawable/ic_baseline_upload_file_24"
+            app:layout_constraintBottom_toBottomOf="@id/uploadImage"
+            app:layout_constraintEnd_toEndOf="@id/uploadImage"
+            app:layout_constraintStart_toStartOf="@id/uploadImage"
+            app:layout_constraintTop_toTopOf="@id/uploadImage" />
+
+        <ImageView
+            android:id="@+id/uploadImage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="250dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/upload_background"
+            android:contentDescription="image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/multipleImageViewRecV"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_marginHorizontal="20dp"
+        tools:listitem="@layout/imageview"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/contentEndLine"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/contentEndLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/uploadBtn"
+        android:layout_width="175dp"
+        android:layout_height="50dp"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/black"
+        android:text="Upload File"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/contentEndLine" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="90dp"
+        app:cardCornerRadius="15dp"
+        app:cardElevation="1dp"
+        app:cardMaxElevation="3dp"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/contentEndLine">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:text="Selected images"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/counterText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:background="@drawable/counter_circle"
+                android:paddingHorizontal="7dp"
+                android:text="1"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/showSelectedImageBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="View All"
+                android:textAlignment="textEnd"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/selectedImagesLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/back_color"
+        android:elevation="20dp"
+        android:visibility="gone">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/showContent"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/uploadLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_height="match_parent">
 
                 <TextView
+                    android:id="@+id/selectedPhotoText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Upload Image"
-                    android:textSize="25sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="@id/uploadImageView"
-                    app:layout_constraintEnd_toEndOf="@id/uploadImageView"
-                    app:layout_constraintStart_toStartOf="@id/uploadImageView"
-                    app:layout_constraintTop_toTopOf="@id/uploadImageView" />
-
-                <ImageView
-                    android:id="@+id/uploadImageView"
-                    android:layout_width="275dp"
-                    android:layout_height="275dp"
                     android:layout_margin="20dp"
-                    android:background="@drawable/upload_background"
-                    android:contentDescription="@string/app_name"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:text="Selected photos"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/removeImageFromUpload"
-                    style="?attr/floatingActionButtonSmallStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@android:color/holo_red_light"
-                    android:src="@drawable/wrong"
-                    android:visibility="gone"
-                    app:borderWidth="0dp"
-                    app:layout_constraintEnd_toEndOf="@id/uploadImageView"
-                    app:layout_constraintTop_toTopOf="@id/uploadImageView" />
+                <ImageView
+                    android:id="@+id/crossBtn"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_margin="20dp"
+                    android:contentDescription="@string/app_name"
+                    android:src="@drawable/images"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/noImageText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="25dp"
+                    android:text="No image selected"
+                    android:textAlignment="center"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@id/selectedPhotoText" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/selectedImageRecV"
+                    android:layout_width="match_parent"
+                    android:layout_height="350dp"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginTop="25dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/selectedPhotoText"
+                    tools:listitem="@layout/imageview" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/uploadImageBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:gravity="center"
-                android:text="Upload Photo"
-                android:textColor="@color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/uploadLayout" />
+        </androidx.cardview.widget.CardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                app:cardCornerRadius="28dp"
-                app:cardElevation="5dp"
-                app:cardMaxElevation="7dp"
-                app:cardPreventCornerOverlap="true"
-                app:cardUseCompatPadding="true"
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/uploadImageBtn">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:backgroundTint="@color/gray"
-                    android:orientation="vertical">
+    <!--    <ScrollView-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:visibility="gone">-->
 
-                    <TextView
-                        android:id="@+id/seleted"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="20dp"
-                        android:text="Selected images"
-                        android:textAlignment="center"
-                        android:textSize="30sp" />
+    <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="wrap_content">-->
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/selectedImageRecV"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginVertical="20dp" />
+    <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--                android:id="@+id/uploadLayout"-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                app:layout_constraintEnd_toEndOf="parent"-->
+    <!--                app:layout_constraintStart_toStartOf="parent"-->
+    <!--                app:layout_constraintTop_toTopOf="parent">-->
 
-                </LinearLayout>
+    <!--                <TextView-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:text="Upload Image"-->
+    <!--                    android:textSize="25sp"-->
+    <!--                    android:textStyle="bold"-->
+    <!--                    app:layout_constraintBottom_toBottomOf="@id/uploadImageView"-->
+    <!--                    app:layout_constraintEnd_toEndOf="@id/uploadImageView"-->
+    <!--                    app:layout_constraintStart_toStartOf="@id/uploadImageView"-->
+    <!--                    app:layout_constraintTop_toTopOf="@id/uploadImageView" />-->
 
-            </com.google.android.material.card.MaterialCardView>
+    <!--                <ImageView-->
+    <!--                    android:id="@+id/uploadImageView"-->
+    <!--                    android:layout_width="275dp"-->
+    <!--                    android:layout_height="275dp"-->
+    <!--                    android:layout_margin="20dp"-->
+    <!--                    android:background="@drawable/upload_background"-->
+    <!--                    android:contentDescription="@string/app_name"-->
+    <!--                    app:layout_constraintEnd_toEndOf="parent"-->
+    <!--                    app:layout_constraintStart_toStartOf="parent"-->
+    <!--                    app:layout_constraintTop_toTopOf="parent" />-->
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+    <!--                <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--                    android:id="@+id/removeImageFromUpload"-->
+    <!--                    style="?attr/floatingActionButtonSmallStyle"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="wrap_content"-->
+    <!--                    android:backgroundTint="@android:color/holo_red_light"-->
+    <!--                    android:src="@drawable/wrong"-->
+    <!--                    android:visibility="gone"-->
+    <!--                    app:borderWidth="0dp"-->
+    <!--                    app:layout_constraintEnd_toEndOf="@id/uploadImageView"-->
+    <!--                    app:layout_constraintTop_toTopOf="@id/uploadImageView" />-->
 
-    </ScrollView>
+
+    <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+    <!--            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+    <!--                android:id="@+id/uploadImageBtn"-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_marginTop="20dp"-->
+    <!--                android:gravity="center"-->
+    <!--                android:text="Upload Photo"-->
+    <!--                android:textColor="@color/white"-->
+    <!--                app:layout_constraintEnd_toEndOf="parent"-->
+    <!--                app:layout_constraintStart_toStartOf="parent"-->
+    <!--                app:layout_constraintTop_toBottomOf="@id/uploadLayout" />-->
+
+    <!--            <com.google.android.material.card.MaterialCardView-->
+    <!--                android:layout_width="match_parent"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_marginTop="20dp"-->
+    <!--                app:cardCornerRadius="28dp"-->
+    <!--                app:cardElevation="5dp"-->
+    <!--                app:cardMaxElevation="7dp"-->
+    <!--                app:cardPreventCornerOverlap="true"-->
+    <!--                app:cardUseCompatPadding="true"-->
+
+    <!--                app:layout_constraintEnd_toEndOf="parent"-->
+    <!--                app:layout_constraintStart_toStartOf="parent"-->
+    <!--                app:layout_constraintTop_toBottomOf="@id/uploadImageBtn">-->
+
+    <!--                <LinearLayout-->
+    <!--                    android:layout_width="match_parent"-->
+    <!--                    android:layout_height="match_parent"-->
+    <!--                    android:backgroundTint="@color/gray"-->
+    <!--                    android:orientation="vertical">-->
+
+    <!--                    <TextView-->
+    <!--                        android:id="@+id/seleted"-->
+    <!--                        android:layout_width="match_parent"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_marginHorizontal="20dp"-->
+    <!--                        android:layout_marginTop="20dp"-->
+    <!--                        android:text="Selected images"-->
+    <!--                        android:textAlignment="center"-->
+    <!--                        android:textSize="30sp" />-->
+
+    <!--                    <androidx.recyclerview.widget.RecyclerView-->
+    <!--                        android:id="@+id/selectedImageRecV"-->
+    <!--                        android:layout_width="match_parent"-->
+    <!--                        android:layout_height="wrap_content"-->
+    <!--                        android:layout_marginHorizontal="20dp"-->
+    <!--                        android:layout_marginVertical="20dp" />-->
+
+    <!--                </LinearLayout>-->
+
+    <!--            </com.google.android.material.card.MaterialCardView>-->
+
+    <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
+
+    <!--    </ScrollView>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
