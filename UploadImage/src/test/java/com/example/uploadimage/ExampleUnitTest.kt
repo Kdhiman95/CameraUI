@@ -1,4 +1,4 @@
-package com.example.camera
+package com.example.uploadimage
 
 import org.junit.Test
 

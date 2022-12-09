@@ -8,8 +8,9 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.os.Handler
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -17,20 +18,18 @@ import android.view.animation.AnimationUtils
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.camera.MainActivity.Companion.FILE_NAME_FORMAT
 import com.example.camera.MainActivity.Companion.PERMISSION_REQ_CODE
 import com.example.camera.MainActivity.Companion.REQUIRED_PERMISSION
 import com.example.camera.databinding.ActivityCameraUiBinding
 import com.example.camera.databinding.SelectedBottomSheetBinding
+import com.example.uploadimage.UploadImage
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -43,11 +42,10 @@ class CameraUi : AppCompatActivity() {
 
 	private lateinit var viewBinding: ActivityCameraUiBinding
 	private lateinit var cameraExecutor: ExecutorService
-	private lateinit var cameraProvider: ProcessCameraProvider
 	private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
 	private lateinit var selectedImagesBottomSheetBinding: SelectedBottomSheetBinding
 	private lateinit var bottomSheetDialog: Dialog
-	private lateinit var fileUtil: FileUtil
+	private lateinit var uploadImage: UploadImage
 
 	private var flip: Boolean = true
 	private var imageCapture: ImageCapture? = null
@@ -67,9 +65,12 @@ class CameraUi : AppCompatActivity() {
 		bottomSheetDialogInit()
 		launcher(this)
 
-		fileUtil = FileUtil()
-		outputDirectory = fileUtil.getDir()
+		uploadImage = UploadImage()
+//		fileUtil = FileUtil()
 		cameraExecutor = Executors.newSingleThreadExecutor()
+
+		val path = Environment.getExternalStorageDirectory().toString() + "/DCIM/Kamal"
+		outputDirectory = uploadImage.getFileUtil().getDir(path)
 
 		viewBinding.imagesFromGalleryRecV.layoutManager =
 			LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -81,10 +82,14 @@ class CameraUi : AppCompatActivity() {
 		super.onResume()
 
 		if (allPermissionGranted()) {
-			startCamera(this)
+
+			uploadImage.getCameraUtil().startCamera(this, viewBinding.cameraPreview, flip)
+
 			MainScope().launch {
-				drawablesFromGallery.postValue(fileUtil.fetchImagesFromGallery(this@CameraUi))
-				selectedImagesList.postValue(fileUtil.getImagesFromFile(outputDirectory!!))
+				drawablesFromGallery.postValue(uploadImage.getFileUtil()
+					.fetchImagesFromGallery(this@CameraUi))
+				selectedImagesList.postValue(uploadImage.getFileUtil()
+					.getImagesFromFile(outputDirectory!!))
 			}
 
 			viewBinding.showSelectedImageBtn.setOnClickListener {
@@ -95,12 +100,14 @@ class CameraUi : AppCompatActivity() {
 				val takePhotoAnim = AnimationUtils.loadAnimation(this, R.anim.photo_click_animation)
 				takePhotoAnim.duration = 500
 				viewBinding.takePhotoBtn.startAnimation(takePhotoAnim)
-				takePhoto(this)
+				val images = uploadImage.getCameraUtil().takePhoto(this,uploadImage.getFileUtil(),outputDirectory!!, FILE_NAME_FORMAT)
+
+				selectedImagesList.postValue(images)
 			}
 
 			viewBinding.flipCameraBtn.setOnClickListener {
 				flip = !flip
-				startCamera(this)
+				uploadImage.getCameraUtil().startCamera(this, viewBinding.cameraPreview, flip)
 			}
 		} else {
 			ActivityCompat.requestPermissions(this, REQUIRED_PERMISSION, PERMISSION_REQ_CODE)
@@ -128,7 +135,7 @@ class CameraUi : AppCompatActivity() {
 
 		drawablesFromGallery.observe(cameraUi) {
 			viewBinding.imagesFromGalleryRecV.visibility = View.VISIBLE
-			viewBinding.imagesFromGalleryRecV.adapter = ImageAdapter(it, cameraUi)
+			viewBinding.imagesFromGalleryRecV.adapter = ImageAdapter(it, cameraUi, uploadImage,outputDirectory!!)
 		}
 	}
 
@@ -147,65 +154,67 @@ class CameraUi : AppCompatActivity() {
 	}
 
 	// Start Camera
-	private fun startCamera(context: Context) {
-		val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-		cameraProviderFuture.addListener({
-			cameraProvider = cameraProviderFuture.get()
-			val preview = Preview.Builder().build().also { mPreview ->
-				mPreview.setSurfaceProvider(viewBinding.cameraPreview.surfaceProvider)
-			}
-			imageCapture = ImageCapture.Builder().build()
-
-			val cameraSelector =
-				if (flip) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
-
-			try {
-				cameraProvider.unbindAll()
-				cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-			} catch (e: Exception) {
-				e.printStackTrace()
-			}
-		}, ContextCompat.getMainExecutor(context))
-	}
+//	private fun startCamera(context: Context) {
+//		val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+//		cameraProviderFuture.addListener({
+//			cameraProvider = cameraProviderFuture.get()
+//			val preview = Preview.Builder().build().also { mPreview ->
+//				mPreview.setSurfaceProvider(viewBinding.cameraPreview.surfaceProvider)
+//			}
+//			imageCapture = ImageCapture.Builder().build()
+//
+//			val t = viewBinding.cameraPreview
+//
+//			val cameraSelector =
+//				if (flip) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+//
+//			try {
+//				cameraProvider.unbindAll()
+//				cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
+//			} catch (e: Exception) {
+//				e.printStackTrace()
+//			}
+//		}, ContextCompat.getMainExecutor(context))
+//	}
 
 	// take photo
-	private fun takePhoto(context: Context) {
-
-		val mediaDir = externalMediaDirs.firstOrNull()?.let { mFile ->
-			File(mFile, resources.getString(R.string.app_name)).apply {
-				mkdirs()
-			}
-		}
-		val dir = if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
-
-		val imageCapture = imageCapture ?: return
-		val photoFile = File(dir, "data.jpg")
-
-		if (photoFile.exists()) {
-			photoFile.delete()
-		}
-
-		val outputOption = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-
-		imageCapture.takePicture(outputOption,
-			ContextCompat.getMainExecutor(this),
-			object : ImageCapture.OnImageSavedCallback {
-				override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-
-					val savedUri = Uri.fromFile(photoFile)
-
-					val ims: InputStream = context.contentResolver.openInputStream(savedUri)!!
-					val bm = BitmapFactory.decodeStream(ims)
-					fileUtil.saveImageToFolder(bm, outputDirectory!!)
-
-					selectedImagesList.postValue(fileUtil.getImagesFromFile(outputDirectory!!))
-				}
-
-				override fun onError(exception: ImageCaptureException) {
-					exception.printStackTrace()
-				}
-			})
-	}
+//	private fun takePhoto(context: Context) {
+//
+//		val mediaDir = externalMediaDirs.firstOrNull()?.let { mFile ->
+//			File(mFile, resources.getString(R.string.app_name)).apply {
+//				mkdirs()
+//			}
+//		}
+//		val dir = if (mediaDir != null && mediaDir.exists()) mediaDir else filesDir
+//
+//		val imageCapture = imageCapture ?: return
+//		val photoFile = File(dir, "data.jpg")
+//
+//		if (photoFile.exists()) {
+//			photoFile.delete()
+//		}
+//
+//		val outputOption = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+//
+//		imageCapture.takePicture(outputOption,
+//			ContextCompat.getMainExecutor(this),
+//			object : ImageCapture.OnImageSavedCallback {
+//				override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+//
+//					val savedUri = Uri.fromFile(photoFile)
+//
+//					val ims: InputStream = context.contentResolver.openInputStream(savedUri)!!
+//					val bm = BitmapFactory.decodeStream(ims)
+//					fileUtil.saveImageToFolder(bm, outputDirectory!!)
+//
+//					selectedImagesList.postValue(fileUtil.getImagesFromFile(outputDirectory!!))
+//				}
+//
+//				override fun onError(exception: ImageCaptureException) {
+//					exception.printStackTrace()
+//				}
+//			})
+//	}
 
 	// launchers
 	private fun launcher(context: Context) {
@@ -222,7 +231,8 @@ class CameraUi : AppCompatActivity() {
 
 							val ims: InputStream = context.contentResolver.openInputStream(uri)!!
 							val bm = BitmapFactory.decodeStream(ims)
-							fileUtil.saveImageToFolder(bm, outputDirectory!!)
+							uploadImage.getFileUtil().saveImageToFolder(bm, outputDirectory!!,
+								FILE_NAME_FORMAT)
 
 						}
 
@@ -231,10 +241,12 @@ class CameraUi : AppCompatActivity() {
 						val uri = result.data!!.data!!
 						val ims: InputStream = context.contentResolver.openInputStream(uri)!!
 						val bm = BitmapFactory.decodeStream(ims)
-						fileUtil.saveImageToFolder(bm, outputDirectory!!)
+						uploadImage.getFileUtil().saveImageToFolder(bm, outputDirectory!!,
+							FILE_NAME_FORMAT)
 
 					}
-					selectedImagesList.postValue(fileUtil.getImagesFromFile(outputDirectory!!))
+					selectedImagesList.postValue(uploadImage.getFileUtil()
+						.getImagesFromFile(outputDirectory!!))
 				}
 			}
 	}

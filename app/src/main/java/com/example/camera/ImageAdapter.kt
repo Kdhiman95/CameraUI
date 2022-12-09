@@ -13,17 +13,24 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.camera.CameraUi.Companion.selectedImagesList
+import com.example.uploadimage.UploadImage
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import java.io.File
 
-class ImageAdapter(private val list: ArrayList<String>, private val context: Context) :
+class ImageAdapter(
+	private val list: ArrayList<String>,
+	private val context: Context,
+	private val uploadImage: UploadImage,
+	private val outputDirectory: File,
+) :
 	RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
 
 	inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 		val image: ImageView = view.findViewById(R.id.image)
 
 		init {
-			val fileUtil = FileUtil()
-			val dir = fileUtil.getDir()
+//			val fileUtil = FileUtil()
+//			val dir = fileUtil.getDir()
 
 			view.setOnClickListener {
 				val dialog = Dialog(context)
@@ -41,9 +48,10 @@ class ImageAdapter(private val list: ArrayList<String>, private val context: Con
 				saveBtn.setOnClickListener {
 					saveBtn.visibility = View.GONE
 					val bm = BitmapFactory.decodeFile(list[adapterPosition])
-
-					fileUtil.saveImageToFolder(bm, dir)
-					selectedImagesList.postValue(fileUtil.getImagesFromFile(dir))
+					uploadImage.getFileUtil().saveImageToFolder(bm, outputDirectory,
+						MainActivity.FILE_NAME_FORMAT)
+					selectedImagesList.postValue(uploadImage.getFileUtil()
+						.getImagesFromFile(outputDirectory))
 
 					Toast.makeText(context, "image selected", Toast.LENGTH_SHORT).show()
 				}
