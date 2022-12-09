@@ -17,7 +17,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -29,7 +28,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.camera.databinding.ActivityMainBinding
@@ -84,12 +82,12 @@ class MainActivity : AppCompatActivity() {
 				viewBinding.counterText.visibility = View.VISIBLE
 				viewBinding.noImageText.visibility = View.GONE
 				viewBinding.counterText.text = it.size.toString()
-				viewBinding.selectedImageRecV.adapter = ImageAdapter(it, this)
+//				viewBinding.selectedImageRecV.adapter = ImageAdapter(it, this)
 			}
 		}
 
 		multipleDrawableList.observe(this) {
-			viewBinding.multipleImageViewRecV.adapter = ImageAdapter(it, this)
+//			viewBinding.multipleImageViewRecV.adapter = ImageAdapter(it, this)
 
 		}
 

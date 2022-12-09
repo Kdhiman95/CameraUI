@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <ImageButton
-        android:id="@+id/chooseFromGalleryBtn"
+        android:id="@+id/showSelectedImageBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -25,6 +25,20 @@
         android:src="@drawable/ic_baseline_image_24"
         android:background="@android:color/transparent"
         android:contentDescription="gallery" />
+
+    <TextView
+        android:id="@+id/counterText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/counter_circle"
+        android:text="1"
+        android:paddingHorizontal="5dp"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/showSelectedImageBtn"
+        app:layout_constraintEnd_toEndOf="@id/showSelectedImageBtn"/>
 
     <ImageButton
         android:id="@+id/takePhotoBtn"
@@ -51,7 +65,7 @@
 
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/selectedImageRecV"
+            android:id="@+id/imagesFromGalleryRecV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
