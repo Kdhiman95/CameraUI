@@ -14,6 +14,6 @@ allprojects {
   > Step 2. Add the dependency
   ```gradle
   dependencies {
-	        implementation 'com.github.Kdhiman95:CameraUI:1.0.0'
+	        implementation 'com.github.Kdhiman95:CameraUI:1.0.1'
 	}
   ```
